@@ -1,20 +1,36 @@
-local speed = 5 -- Speed at which the arrows move
+local spacing = 150 -- Increase spacing to spread the arrows out more
+local maxWidth = 1280 -- Screen width (adjust as needed)
+
+-- Function to generate a random speed between 50 and 150
+local function getRandomSpeed()
+    return math.random(50, 150)
+end
+
+-- Initialize speeds for each arrow
+local speeds = {}
+for i = 1, 8 do
+    table.insert(speeds, getRandomSpeed() * (math.random(0, 1) == 0 and 1 or -1)) -- Randomize direction as well
+end
 
 function onUpdate(elapsed)
     songPos = getSongPosition()
     local currentBeat = (songPos / 1000) * (curBpm / 60)
 
-    -- Move arrows along the x-axis
-    local maxWidth = 1280 -- Screen width (adjust as needed)
+    -- Move arrows along the x-axis with random speeds and directions
     for i = 0, 3 do
-        -- Opponent notes moving left to right
-        local xPosition = (defaultOpponentStrumX0 + (speed * currentBeat) + (i * 50)) % maxWidth
+        -- Opponent notes moving in different directions
+        local speed = speeds[i + 1]
+        local xPosition = (defaultOpponentStrumX0 + (speed * currentBeat) + (i * spacing)) % maxWidth
+        if xPosition < 0 then
+            xPosition = xPosition + maxWidth
+        end
         setPropertyFromGroup('opponentStrums', i, 'x', xPosition)
     end
 
     for i = 4, 7 do
-        -- Player notes moving right to left
-        local xPosition = (defaultPlayerStrumX0 - (speed * currentBeat) - ((i - 4) * 50)) % maxWidth
+        -- Player notes moving in different directions
+        local speed = speeds[i + 1]
+        local xPosition = (defaultPlayerStrumX0 + (speed * currentBeat) + ((i - 4) * spacing)) % maxWidth
         if xPosition < 0 then
             xPosition = xPosition + maxWidth
         end
